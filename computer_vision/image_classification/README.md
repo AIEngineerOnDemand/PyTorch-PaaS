@@ -17,3 +17,16 @@ In this project, we explore several popular deep learning models used for image 
 - **Transformer Models (like Vision Transformer - ViT)**: While originally designed for NLP tasks, Transformer models have recently been adapted for image classification tasks and have shown competitive results.
 
 We will be training and evaluating all these models on our dataset and comparing their performance. The choice of model depends on the specific task, the size and nature of our dataset, computational resources, and the trade-off between speed and accuracy that we're willing to make.
+
+
+PyTorch's flexibility and efficient tensor computations make it suitable for tasks like image classification, object detection, and image generation. 
+
+When evaluating image classification models in PyTorch, several common metrics are used:
+
+- **Accuracy**: The ratio of correctly predicted observations to the total observations.
+- **Precision**: The ratio of correctly predicted positive observations to the total predicted positives.
+- **Recall (Sensitivity)**: The ratio of correctly predicted positive observations to all actual positives.
+- **F1 Score**: The weighted average of Precision and Recall.
+- **Confusion Matrix**: A table that describes the performance of a classification model on a set of test data for which the true values are known.
+- **Area Under the ROC Curve (AUC-ROC)**: A plot of the true positive rate against the false positive rate.
+- **Log Loss**: Often used in place of accuracy
