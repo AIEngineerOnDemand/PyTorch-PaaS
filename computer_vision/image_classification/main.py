@@ -33,14 +33,14 @@ def main():
     models = [model_class() for model_class in model_classes]
     
     criterion = get_criterion()
-    
+  
     # Train and evaluate each model
     for model in models:
         optimizer = get_optimizer(model)
         print(f"Training and evaluating {model.__class__.__name__}...")
         model.train_model(trainloader, criterion, optimizer)
-        accuracy = model.evaluate(testloader)
-        utils.save_results(model.__class__.__name__, accuracy)
+        accuracy, precision, recall, f1, confusion, auc_roc, logloss = model.evaluate(testloader)
+        utils.save_results(model.__class__.__name__, accuracy, precision, recall, f1, confusion, auc_roc, logloss)
         print(f"Done with {model.__class__.__name__}.\n")
 
 # ... rest of your code ...
