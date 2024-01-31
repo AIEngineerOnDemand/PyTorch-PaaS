@@ -28,7 +28,7 @@ def main():
     trainloader, testloader, classes = load_data()
         
     # List of models to train and evaluate
-    model_classes = [CNN ]
+    model_classes = [CNN,ResNet ]
     #model_classes = [CNN, ResNet, Inception, DenseNet, EfficientNet, MobileNet, ViT]
     models = [model_class() for model_class in model_classes]
     
