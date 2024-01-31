@@ -3,7 +3,7 @@ import torch.optim as optim
 from models.cnn import CNN
 # from models.resnet import ResNet
 # from models.inception import Inception
-# from models.densenet import DenseNet
+from models.densenet import DenseNet
 # from models.efficientnet import EfficientNet
 # from models.mobilenet import MobileNet
 # from models.vit import ViT
@@ -28,7 +28,7 @@ def main():
     trainloader, testloader, classes = utils.load_data()
         
     # List of models to train and evaluate
-    model_classes = [CNN ]
+    model_classes = [DenseNet ]
     #model_classes = [CNN, ResNet, Inception, DenseNet, EfficientNet, MobileNet, ViT]
     models = [model_class() for model_class in model_classes]
     
