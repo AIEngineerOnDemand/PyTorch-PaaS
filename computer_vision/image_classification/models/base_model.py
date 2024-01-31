@@ -48,7 +48,7 @@ class BaseModel(nn.Module):
         # Convert lists to numpy arrays
         all_labels = np.array(all_labels)
         all_predictions = np.array(all_predictions)
-        all_probabilities = np.array(all_probabilities)
+        all_probabilities = np.stack([p.numpy() for p in all_probabilities])
 
         # Compute metrics
         accuracy = accuracy_score(all_labels, all_predictions)
