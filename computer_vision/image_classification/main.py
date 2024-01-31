@@ -1,13 +1,13 @@
 import torch.nn as nn
 import torch.optim as optim
 from models.cnn import CNN
-# from models.resnet import ResNet
-# from models.inception import Inception
+from models.resnet import ResNet
+from models.inception import Inception
 from models.densenet import DenseNet
-# from models.efficientnet import EfficientNet
-# from models.mobilenet import MobileNet
-# from models.vit import ViT
-from utils import utils
+from models.efficientnet import EfficientNet
+from models.mobilenet import MobileNet
+from models.vit import ViT
+from utils.utils import load_data, save_results
 
 def get_criterion():
     # Define the criterion
@@ -25,10 +25,10 @@ def main():
     train and evaluate all the models, and save the results.
     """
     # Load and normalize the CIFAR10 dataset and create data loaders
-    trainloader, testloader, classes = utils.load_data()
+    trainloader, testloader, classes = load_data()
         
     # List of models to train and evaluate
-    model_classes = [DenseNet ]
+    model_classes = [CNN ]
     #model_classes = [CNN, ResNet, Inception, DenseNet, EfficientNet, MobileNet, ViT]
     models = [model_class() for model_class in model_classes]
     
@@ -40,10 +40,9 @@ def main():
         print(f"Training and evaluating {model.__class__.__name__}...")
         model.train_model(trainloader, criterion, optimizer)
         accuracy, precision, recall, f1, confusion, auc_roc, logloss = model.evaluate(testloader)
-        utils.save_results(model.__class__.__name__, accuracy, precision, recall, f1, confusion, auc_roc, logloss)
+        save_results(model.__class__.__name__, accuracy, precision, recall, f1, confusion, auc_roc, logloss)
         print(f"Done with {model.__class__.__name__}.\n")
 
-# ... rest of your code ...
 
 if __name__ == "__main__":
     """
