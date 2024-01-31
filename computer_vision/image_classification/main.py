@@ -1,12 +1,12 @@
 import torch.nn as nn
 import torch.optim as optim
 from models.cnn import CNN
-from models.resnet import ResNet
-from models.inception import Inception
-from models.densenet import DenseNet
-from models.efficientnet import EfficientNet
-from models.mobilenet import MobileNet
-from models.vit import ViT
+# from models.resnet import ResNet
+# from models.inception import Inception
+# from models.densenet import DenseNet
+# from models.efficientnet import EfficientNet
+# from models.mobilenet import MobileNet
+# from models.vit import ViT
 from utils import utils
 
 def get_criterion():
@@ -28,7 +28,8 @@ def main():
     trainloader, testloader, classes = utils.load_data()
         
     # List of models to train and evaluate
-    model_classes = [CNN, ResNet, Inception, DenseNet, EfficientNet, MobileNet, ViT]
+    model_classes = [CNN ]
+    #model_classes = [CNN, ResNet, Inception, DenseNet, EfficientNet, MobileNet, ViT]
     models = [model_class() for model_class in model_classes]
     
     criterion = get_criterion()
@@ -37,9 +38,9 @@ def main():
     for model in models:
         optimizer = get_optimizer(model)
         print(f"Training and evaluating {model.__class__.__name__}...")
-        model.train(trainloader,criterion,optimizer)
-        # accuracy = model.evaluate(testloader)
-        # utils.save_results(model.__class__.__name__, accuracy)
+        model.train_model(trainloader, criterion, optimizer)
+        accuracy = model.evaluate(testloader)
+        utils.save_results(model.__class__.__name__, accuracy)
         print(f"Done with {model.__class__.__name__}.\n")
 
 # ... rest of your code ...
