@@ -1,5 +1,6 @@
 import torch
 from torchvision import datasets, transforms
+import os
 
 def load_data():
     """
@@ -44,3 +45,21 @@ def load_data():
                'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
 
     return trainloader, testloader, classes
+
+
+def save_results(model_name, accuracy):
+    """
+    Save the model name and its accuracy to a file.
+
+    This function opens a file named 'accuracy.txt' in a 'results' folder in append mode, writes the model name and its accuracy to the file, and then closes the file. If the file or the folder doesn't exist, they will be created.
+
+    Args:
+        model_name (str): The name of the model.
+        accuracy (float): The accuracy of the model.
+    """
+    # Ensure the 'results' directory exists
+    if not os.path.exists('results'):
+        os.makedirs('results')
+
+    with open('results/accuracy.txt', 'a') as f:
+        f.write(f'Model: {model_name}, Accuracy: {accuracy}\n')
