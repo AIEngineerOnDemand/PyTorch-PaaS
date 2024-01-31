@@ -12,6 +12,7 @@ torchvision = "^0.17.0"
 scikit-learn = "^1.4.0"
 matplotlib = "^3.8.2"
 seaborn = "^0.13.2"
+timm = "^0.9.12"
 
 [build-system]
 requires = ["poetry-core"]
