@@ -8,7 +8,7 @@ from torchvision.models import densenet121, DenseNet121_Weights
 class DenseNet(nn.Module):
     def __init__(self, num_classes=10):
         super(DenseNet, self).__init__()    
-        self.model = densenet121(weights=DenseNet121_Weights.IMAGENET1K_V1)
+        self.model = densenet121(weights=DenseNet121_Weights.DEFAULT)
         num_features = self.model.classifier.in_features
         self.model.classifier = nn.Linear(num_features, num_classes)
 
