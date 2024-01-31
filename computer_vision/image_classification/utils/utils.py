@@ -46,20 +46,28 @@ def load_data():
 
     return trainloader, testloader, classes
 
-
-def save_results(model_name, accuracy):
+def save_results(model_name, accuracy, precision, recall, f1, confusion, auc_roc, logloss):
     """
-    Save the model name and its accuracy to a file.
+    Save the model name and its metrics to a file.
 
-    This function opens a file named 'accuracy.txt' in a 'results' folder in append mode, writes the model name and its accuracy to the file, and then closes the file. If the file or the folder doesn't exist, they will be created.
+    This function opens a file named 'results.md' in a 'results' folder in append mode, writes the model name and its metrics to the file in a table format, and then closes the file. If the file or the folder doesn't exist, they will be created.
 
     Args:
         model_name (str): The name of the model.
         accuracy (float): The accuracy of the model.
+        precision (float): The precision of the model.
+        recall (float): The recall of the model.
+        f1 (float): The F1 score of the model.
+        confusion (np.array): The confusion matrix of the model.
+        auc_roc (float): The AUC-ROC of the model.
+        logloss (float): The log loss of the model.
     """
     # Ensure the 'results' directory exists
     if not os.path.exists('results'):
         os.makedirs('results')
 
-    with open('results/accuracy.txt', 'a') as f:
-        f.write(f'Model: {model_name}, Accuracy: {accuracy}\n')
+    with open('results/results.md', 'a') as f:
+        f.write(f'| Model | Accuracy | Precision | Recall | F1 Score | AUC-ROC | Log Loss |\n')
+        f.write(f'| --- | --- | --- | --- | --- | --- | --- |\n')
+        f.write(f'| {model_name} | {accuracy} | {precision} | {recall} | {f1} | {auc_roc} | {logloss} |\n')
+        f.write(f'\nConfusion Matrix:\n```\n{confusion}\n```\n')
