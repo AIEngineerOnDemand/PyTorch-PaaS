@@ -1,6 +1,8 @@
 import torch
 from torchvision import datasets, transforms
 import os
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 def load_data():
     """
@@ -69,5 +71,13 @@ def save_results(model_name, accuracy, precision, recall, f1, confusion, auc_roc
     with open('results/results.md', 'a') as f:
         f.write(f'| Model | Accuracy | Precision | Recall | F1 Score | AUC-ROC | Log Loss |\n')
         f.write(f'| --- | --- | --- | --- | --- | --- | --- |\n')
-        f.write(f'| {model_name} | {accuracy} | {precision} | {recall} | {f1} | {auc_roc} | {logloss} |\n')
-        f.write(f'\nConfusion Matrix:\n```\n{confusion}\n```\n')
+        f.write(f'| {model_name} | {accuracy:.2f} | {precision:.2f} | {recall:.2f} | {f1:.2f} | {auc_roc:.2f} | {logloss:.2f} |\n')
+        f.write(f'\n![Confusion Matrix for {model_name}](results/{model_name}_confusion_matrix.png)\n')
+
+    # Plot confusion matrix
+    plt.figure(figsize=(10,7))
+    sns.heatmap(confusion, annot=True, fmt='d', cmap='Blues')
+    plt.title(f'Confusion Matrix for {model_name}')
+    plt.xlabel('Predicted')
+    plt.ylabel('True')
+    plt.savefig(f'results/{model_name}_confusion_matrix.png')
