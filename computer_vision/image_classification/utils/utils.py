@@ -47,7 +47,31 @@ def load_data():
                'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
 
     return trainloader, testloader, classes
+def save_model(model, filename):
+    """
+    Save the model parameters.
 
+    Args:
+        model (torch.nn.Module): The PyTorch model to save.
+        filename (str): The path where to save the model.
+    """
+    path = F"/content/gdrive/My Drive/{filename}"
+    torch.save(model.state_dict(), path)
+
+def load_model(filename, model_class):
+    """
+    Load the model parameters.
+
+    Args:
+        filename (str): The path from where to load the model.
+        model_class (class): The class of the model.
+
+    Returns:
+        model (torch.nn.Module): The PyTorch model loaded.
+    """
+    model = model_class()
+    model.load_state_dict(torch.load(filename))
+    return model
 def save_results(model_name, accuracy, precision, recall, f1, confusion, auc_roc, logloss):
     """
     Save the model name and its metrics to a file.
