@@ -28,8 +28,8 @@ def main():
     trainloader, _, classes = load_data()
         
     # List of models to train and evaluate
-    model_classes = [CNN,ResNet ]
-    #model_classes = [CNN, ResNet, Inception, DenseNet, EfficientNet, MobileNet, ViT]
+    #model_classes = [CNN,ResNet ]
+    model_classes = [Inception, DenseNet, EfficientNet, MobileNet, ViT]
     models = [model_class() for model_class in model_classes]
     
     criterion = get_criterion()
