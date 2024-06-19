@@ -39,7 +39,7 @@ def main():
         optimizer = get_optimizer(model)
         print(f"Training and evaluating {model.__class__.__name__}...")
         model.train_model(trainloader, criterion, optimizer)
-        save_model(model, f"Computer-Vision-Models/{model.__class__.__name__}.pth")
+        save_model(model, f"Computer-Vision-Models/Image-Classification/{model.__class__.__name__}.pth")
         print(f"Done with {model.__class__.__name__}.\n")
 
 
