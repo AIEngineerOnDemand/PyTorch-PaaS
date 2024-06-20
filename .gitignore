@@ -2,3 +2,7 @@
 computer_vision/image_classification/data/*
 computer_vision/image_classification/utils/__pycache__/*
 computer_vision/image_classification/results/*
+computer_vision/image_classification/__pycache__/*
+computer_vision/image_classification/models/__pycache__/*
+computer_vision/image_classification/results/*
+
