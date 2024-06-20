@@ -26,9 +26,37 @@ def load_data():
         classes (tuple of str): The class labels for the CIFAR10 dataset.
     """
     # Define a transform to normalize the data
+    """
+    This code defines a transformation pipeline for preprocessing images.
+    
+    The transformation pipeline is composed of two steps:
+    1. `transforms.ToTensor()`: This converts the input PIL Image to a PyTorch tensor. It also scales the image's pixel intensity values in the range 0-255 to a float in the range 0.0-1.0.
+    2. `transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))`: This normalizes the tensor image with mean and standard deviation. 
+        The mean and standard deviation are specified for all three channels (R, G, B), and they are both (0.5, 0.5, 0.5). This will scale the pixel values from the range 0.0-1.0 to the range -1.0-1.0.
+    
+    Args:
+        None
+    
+    Returns:
+        transform (torchvision.transforms.Compose): The transformation pipeline that can be used to preprocess images.
+    """
     transform = transforms.Compose(
         [transforms.ToTensor(),
          transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+    """
+    Loads the CIFAR10 test dataset.
+
+    This function uses the torchvision.datasets.CIFAR10 class to load the CIFAR10 test dataset. The dataset is downloaded if it is not already present in the './data' directory. The images in the dataset are transformed using the transform defined earlier in the code.
+
+    Args:
+        root (str): The path to the directory where the dataset will be stored. In this case, it's './data'.
+        train (bool): If False, creates a dataset from the test set. In this case, it's False.
+        download (bool): If True, downloads the dataset from the internet if it's not available at root. In this case, it's True.
+        transform (callable, optional): A function/transform that takes in an PIL image and returns a transformed version. In this case, it's the transform defined earlier in the code.
+
+    Returns:
+        testset (torchvision.datasets.CIFAR10): The CIFAR10 test dataset loaded and transformed.
+    """
 
     # Load the CIFAR10 training data
     trainset = datasets.CIFAR10(root='./data', train=True,
