@@ -1,18 +1,19 @@
 [tool.poetry]
-name = "pytorch-use-cases"
+name = "Pytorch-Use-Cases"
 version = "0.1.0"
 description = ""
 authors = ["AIEngineerOnDemand <giopantana@gmail.com>"]
-readme = "README.md"
+
 
 [tool.poetry.dependencies]
 python = "^3.9"
-torch = "^2.2.0"
-torchvision = "^0.17.0"
-scikit-learn = "^1.4.0"
-matplotlib = "^3.8.2"
+torch = "^2.3.1"
+torchvision = "^0.18.1"
+scikit-learn = "^1.5.0"
+matplotlib = "^3.9.0"
 seaborn = "^0.13.2"
-timm = "^0.9.12"
+timm = "^1.0.7"
+numpy = "<2.0.0"  
 
 [build-system]
 requires = ["poetry-core"]
