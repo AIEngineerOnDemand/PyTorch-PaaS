@@ -14,6 +14,7 @@ matplotlib = "^3.9.0"
 seaborn = "^0.13.2"
 timm = "^1.0.7"
 numpy = "<2.0.0"  
+ipykernel = "^6.29.4"
 
 [build-system]
 requires = ["poetry-core"]
