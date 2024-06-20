@@ -10,4 +10,4 @@ class DenseNet(BaseModel):
         self.model.classifier = nn.Linear(num_features, self.num_classes)
         
     def set_model(self, model):
-        self.model = model    
+        self.model = model
