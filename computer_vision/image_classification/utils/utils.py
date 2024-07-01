@@ -36,9 +36,7 @@ def load_data(subsample=False, subsample_rate=0.1):
         The mean and standard deviation are specified for all three channels (R, G, B), and they are both (0.5, 0.5, 0.5). This will scale the pixel values from the range 0.0-1.0 to the range -1.0-1.0.
     
     """
-    transform = transforms.Compose(
-        [transforms.ToTensor(),
-         transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+
     """
     Loads the CIFAR10 test dataset.
 
@@ -53,7 +51,10 @@ def load_data(subsample=False, subsample_rate=0.1):
     Returns:
         testset (torchvision.datasets.CIFAR10): The CIFAR10 test dataset loaded and transformed.
     """
-
+    transform = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+        ])
     # Load the full CIFAR10 datasets
     trainset = datasets.CIFAR10(root='./data', train=True, download=True, transform=transform)
     testset = datasets.CIFAR10(root='./data', train=False, download=True, transform=transform)
