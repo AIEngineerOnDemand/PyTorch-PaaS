@@ -3,10 +3,11 @@ from torchvision import datasets, transforms
 import os
 import matplotlib.pyplot as plt
 import seaborn as sns
+from torch.utils.data import Subset
+import numpy as np
 
-def load_data():
+def load_data(subsample=False, subsample_rate=0.1):
     """
-    Load and normalize the CIFAR10 training and test datasets using torchvision.
 
     This function performs the following steps:
 
@@ -34,11 +35,6 @@ def load_data():
     2. `transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))`: This normalizes the tensor image with mean and standard deviation. 
         The mean and standard deviation are specified for all three channels (R, G, B), and they are both (0.5, 0.5, 0.5). This will scale the pixel values from the range 0.0-1.0 to the range -1.0-1.0.
     
-    Args:
-        None
-    
-    Returns:
-        transform (torchvision.transforms.Compose): The transformation pipeline that can be used to preprocess images.
     """
     transform = transforms.Compose(
         [transforms.ToTensor(),
@@ -58,23 +54,24 @@ def load_data():
         testset (torchvision.datasets.CIFAR10): The CIFAR10 test dataset loaded and transformed.
     """
 
-    # Load the CIFAR10 training data
-    trainset = datasets.CIFAR10(root='./data', train=True,
-                                download=True, transform=transform)
-    trainloader = torch.utils.data.DataLoader(trainset, batch_size=4,
-                                              shuffle=True, num_workers=2)
+    # Load the full CIFAR10 datasets
+    trainset = datasets.CIFAR10(root='./data', train=True, download=True, transform=transform)
+    testset = datasets.CIFAR10(root='./data', train=False, download=True, transform=transform)
 
-    # Load the CIFAR10 test data
-    testset = datasets.CIFAR10(root='./data', train=False,
-                               download=True, transform=transform)
-    testloader = torch.utils.data.DataLoader(testset, batch_size=4,
-                                             shuffle=False, num_workers=2)
+    if subsample:
+        # Subsample the datasets
+        train_indices = np.random.choice(len(trainset), int(len(trainset) * subsample_rate), replace=False)
+        test_indices = np.random.choice(len(testset), int(len(testset) * subsample_rate), replace=False)
 
-    # Define the class labels
-    classes = ('plane', 'car', 'bird', 'cat',
-               'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
+        trainset = Subset(trainset, train_indices)
+        testset = Subset(testset, test_indices)
 
+    trainloader = torch.utils.data.DataLoader(trainset, batch_size=4, shuffle=True, num_workers=2)
+    testloader = torch.utils.data.DataLoader(testset, batch_size=4, shuffle=False, num_workers=2)
+
+    classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
     return trainloader, testloader, classes
+
 def save_model(model, filename):
     """
     Save the model parameters.
