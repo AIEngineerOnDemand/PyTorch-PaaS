@@ -25,7 +25,7 @@ def main():
     train and evaluate all the models, and save the results.
     """
     # Load and normalize the CIFAR10 dataset and create data loaders
-    trainloader, _, classes = load_data()
+    trainloader, _, classes =  load_data(subsample=True, subsample_rate=0.01)
         
     # List of models to train and evaluate
     #model_classes = [CNN,ResNet ]
