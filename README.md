@@ -24,6 +24,24 @@ Due to its dynamic computation graph and efficient memory usage, PyTorch is also
 
 Stay tuned for more updates and examples of PyTorch use cases.
 
+## Development Approach
+
+In our project, we prioritize efficient development practices to ensure rapid iteration and robust code quality, even on machines with limited resources. Here's how we achieve this:
+
+### Fast Iterations and Local Testing
+
+We understand the importance of being able to quickly test changes without the need for extensive setup or reliance on high-resource environments. To support this, we've implemented functionality that allows for the simulation or mocking of complex operations. This enables developers to run tests locally, ensuring that the code behaves as expected before moving to more resource-intensive testing environments. This approach significantly reduces the development cycle time and improves productivity.
+
+### Separation of Concerns
+
+Our codebase is structured around the principle of separation of concerns, ensuring that different parts of the application are modular and independent. This design philosophy allows for easier maintenance, testing, and scalability. By separating the application into distinct sections based on functionality, developers can work on individual components without the risk of causing unintended side effects in unrelated parts of the application.
+
+This modular approach also facilitates the implementation of mock models and data for local testing, as developers can easily swap out or modify components without affecting the core functionality of the application.
+
+### Why This Matters
+
+By incorporating these practices into our development process, we aim to create a more efficient and error-resistant workflow. This allows our team to focus on innovation and the development of high-quality features, even when working on devices with limited computational power. It's a testament to our commitment to not only achieving our project goals but also to adhering to best practices in software development.
+
 ## Running the Code on Google Colab
 
 Follow these steps to run the `main.py` script on Google Colab:
