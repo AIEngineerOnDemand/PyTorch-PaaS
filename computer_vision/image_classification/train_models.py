@@ -8,6 +8,14 @@ from models.efficientnet import EfficientNet
 from models.mobilenet import MobileNet
 from models.vit import ViT
 from utils.utils import load_data, save_model
+import logging
+import torch
+from torch.profiler import profile, ProfilerActivity, record_function
+# Configure logging
+logging.basicConfig(filename='training_log.log', level=logging.INFO, 
+                    format='%(asctime)s:%(levelname)s:%(message)s')
+
+
 
 
 def get_model_by_name(model_name):
@@ -39,25 +47,24 @@ def get_optimizer(model):
     return optimizer
 
 def quick_test(trainloader, model):
-    import torch
-    from torch.profiler import profile, ProfilerActivity, record_function
-    # Get criterion and optimizer from their respective functions
-    criterion = get_criterion()
-    optimizer = get_optimizer(model)
-    test_loader = torch.utils.data.DataLoader(trainloader.dataset, batch_size=2, shuffle=False, num_workers=0, 
-                                              sampler=torch.utils.data.SubsetRandomSampler(range(10)))
-    with profile(activities=[ProfilerActivity.CPU], record_shapes=False, with_stack=False) as prof:
-        with record_function("model_training_quick_test"):
-            for i, data in enumerate(test_loader):
-                if i >= 1:  # Process only one batch to check for errors
-                    break
-                images, labels = data
-                optimizer.zero_grad()
-                outputs = model(images)
-                loss = criterion(outputs, labels)
-                loss.backward()
-                optimizer.step()
-    print(prof.key_averages().table(sort_by="cpu_time_total", row_limit=10))
+    try:
+        criterion = get_criterion()
+        optimizer = get_optimizer(model)
+        test_loader = torch.utils.data.DataLoader(trainloader.dataset, batch_size=2, shuffle=False, num_workers=0, 
+                                                  sampler=torch.utils.data.SubsetRandomSampler(range(10)))
+        with profile(activities=[ProfilerActivity.CPU], record_shapes=False, with_stack=False) as prof:
+            with record_function("model_training_quick_test"):
+                for i, data in enumerate(test_loader):
+                    if i >= 1:  # Process only one batch to check for errors
+                        break
+                    images, labels = data
+                    optimizer.zero_grad()
+        # Log the profiling information
+        logging.info(prof.key_averages().table(sort_by="cpu_time_total", row_limit=10))
+        print(f"\nModel {model.__class__.__name__} can be trained.\n")
+    except Exception as e:
+        logging.error("Error during training: ", exc_info=True)
+        print(f"Error during training: {e}")
     
 def main(fast_local=False):
     """
