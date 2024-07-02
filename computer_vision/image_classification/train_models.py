@@ -97,6 +97,6 @@ if __name__ == "__main__":
     """
     Entry point of the script. Calls the main function.
     """
-    main(fast_local=True)
+    main(fast_local=False)
     
     
