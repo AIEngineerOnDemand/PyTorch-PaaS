@@ -5,4 +5,8 @@ computer_vision/image_classification/results/*
 computer_vision/image_classification/__pycache__/*
 computer_vision/image_classification/models/__pycache__/*
 computer_vision/image_classification/results/*
-
+data/*
+computer_vision/image_generation/*
+computer_vision/object_detection/*
+poetry
+computer_vision/image_classification/debug.ipynb
