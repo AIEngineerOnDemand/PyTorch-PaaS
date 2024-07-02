@@ -27,7 +27,7 @@ def get_transform_for_model(model_name):
         transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
     ])
 
-def load_data(model_name,subsample=False, subsample_rate=0.1):
+def load_data(model_name,subsample=False, subsample_rate=False):
     """
 
     This function performs the following steps:
