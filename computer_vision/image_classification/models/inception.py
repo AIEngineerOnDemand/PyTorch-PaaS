@@ -9,5 +9,11 @@ class Inception(BaseModel):
         self.model.fc = nn.Linear(self.model.fc.in_features, num_classes)
 
     def forward(self, x):
-        x = self.model(x)
-        return x
+        # Forward pass through the inception model
+        outputs = self.model(x)
+        if self.training:
+            # If the model is in training mode, return only the main output
+            return outputs.logits
+        else:
+            # Otherwise, return the outputs directly (for evaluation mode)
+            return outputs
