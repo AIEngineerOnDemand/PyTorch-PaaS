@@ -9,6 +9,25 @@ from models.mobilenet import MobileNet
 from models.vit import ViT
 from utils.utils import load_data, save_model
 
+
+def get_model_by_name(model_name):
+    """
+    Returns an instance of the model class based on the model_name argument.
+    """
+    model_classes = {
+        'CNN': CNN,
+        'ResNet': ResNet,
+        'Inception': Inception,
+        'DenseNet': DenseNet,
+        'EfficientNet': EfficientNet,
+        'MobileNet': MobileNet,
+        'ViT': ViT
+    }
+    if model_name in model_classes:
+        return model_classes[model_name]()
+    else:
+        raise ValueError(f"Model {model_name} is not supported.")
+
 def get_criterion():
     # Define the criterion
     criterion = nn.CrossEntropyLoss()
@@ -19,33 +38,58 @@ def get_optimizer(model):
     optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
     return optimizer
 
-def main():
+def quick_test(trainloader, model):
+    import torch
+    from torch.profiler import profile, ProfilerActivity, record_function
+    # Get criterion and optimizer from their respective functions
+    criterion = get_criterion()
+    optimizer = get_optimizer(model)
+    test_loader = torch.utils.data.DataLoader(trainloader.dataset, batch_size=2, shuffle=False, num_workers=0, 
+                                              sampler=torch.utils.data.SubsetRandomSampler(range(10)))
+    with profile(activities=[ProfilerActivity.CPU], record_shapes=False, with_stack=False) as prof:
+        with record_function("model_training_quick_test"):
+            for i, data in enumerate(test_loader):
+                if i >= 1:  # Process only one batch to check for errors
+                    break
+                images, labels = data
+                optimizer.zero_grad()
+                outputs = model(images)
+                loss = criterion(outputs, labels)
+                loss.backward()
+                optimizer.step()
+    print(prof.key_averages().table(sort_by="cpu_time_total", row_limit=10))
+    
+def main(fast_local=False):
     """
     Main function to load the CIFAR10 dataset, normalize it, create data loaders for training and testing,
     train and evaluate all the models, and save the results.
     """
-    # Load and normalize the CIFAR10 dataset and create data loaders
-    trainloader, _, classes =  load_data(subsample=True, subsample_rate=0.01)
-        
-    # List of models to train and evaluate
-    #model_classes = [CNN,ResNet ]
-    model_classes = [Inception, DenseNet, EfficientNet, MobileNet, ViT]
-    models = [model_class() for model_class in model_classes]
+    # List of model names to train and evaluate
+    model_names = ['CNN', 'ResNet', 'Inception', 'DenseNet', 'EfficientNet', 'MobileNet', 'ViT']
     
-    criterion = get_criterion()
-  
-    # Train and evaluate each model
-    for model in models:
-        optimizer = get_optimizer(model)
-        print(f"Training and evaluating {model.__class__.__name__}...")
-        model.train_model(trainloader, criterion, optimizer)
-        save_model(model, f"Computer-Vision-Models/Image-Classification/{model.__class__.__name__}.pth")
-        print(f"Done with {model.__class__.__name__}.\n")
-
+    for model_name in model_names:
+        # Initialize the model based on model_name
+        model = get_model_by_name(model_name)  # Assume get_model_by_name function exists
+        
+        if fast_local:
+            trainloader, testloader, classes = load_data(model_name, subsample=True, subsample_rate=0.01)
+            quick_test(trainloader, model)  # Pass the model instance instead of model_name
+        else:
+            trainloader, testloader, classes = load_data(model_name)
+            
+            criterion = get_criterion()
+            optimizer = get_optimizer(model)
+            
+            print(f"Training and evaluating {model_name}...")
+            model.train_model(trainloader, criterion, optimizer)
+            save_model(model, f"Computer-Vision-Models/Image-Classification/{model_name}.pth")
+            print(f"Done with {model_name}.\n")
 
 
 if __name__ == "__main__":
     """
     Entry point of the script. Calls the main function.
     """
-    main()
+    main(fast_local=True)
+    
+    
