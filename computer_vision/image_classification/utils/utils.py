@@ -6,7 +6,28 @@ import seaborn as sns
 from torch.utils.data import Subset
 import numpy as np
 
-def load_data(subsample=False, subsample_rate=0.1):
+
+from torchvision import datasets, transforms
+from torch.utils.data import DataLoader, Subset
+import numpy as np
+import torch
+
+def get_transform_for_model(model_name):
+    if model_name == 'Inception':
+        resize_transform = transforms.Resize((299, 299))
+    elif model_name in ['CNN', 'ResNet', 'DenseNet', 'EfficientNet', 'MobileNet', 'ViT']:
+        resize_transform = transforms.Resize((224, 224))
+    else:
+        # Default to 224x224 if model name is unknown
+        resize_transform = transforms.Resize((224, 224))
+    
+    return transforms.Compose([
+        resize_transform,
+        transforms.ToTensor(),
+        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+    ])
+
+def load_data(model_name,subsample=False, subsample_rate=0.1):
     """
 
     This function performs the following steps:
@@ -51,10 +72,8 @@ def load_data(subsample=False, subsample_rate=0.1):
     Returns:
         testset (torchvision.datasets.CIFAR10): The CIFAR10 test dataset loaded and transformed.
     """
-    transform = transforms.Compose([
-            transforms.ToTensor(),
-            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-        ])
+    transform = get_transform_for_model(model_name)
+    
     # Load the full CIFAR10 datasets
     trainset = datasets.CIFAR10(root='./data', train=True, download=True, transform=transform)
     testset = datasets.CIFAR10(root='./data', train=False, download=True, transform=transform)
