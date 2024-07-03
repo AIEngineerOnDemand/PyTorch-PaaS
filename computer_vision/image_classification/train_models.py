@@ -1,5 +1,7 @@
 import torch.nn as nn
 import torch.optim as optim
+from torchvision import transforms
+from torch.utils.data import Dataset, DataLoader
 from models.cnn import CNN
 from models.resnet import ResNet
 from models.inception import Inception
@@ -7,16 +9,14 @@ from models.densenet import DenseNet
 from models.efficientnet import EfficientNet
 from models.mobilenet import MobileNet
 from models.vit import ViT
-from utils.utils import load_data, save_model
+from utils.utils import load_data, save_model,get_transform_for_model
 import logging
 import torch
+from PIL import Image
 from torch.profiler import profile, ProfilerActivity, record_function
 # Configure logging
 logging.basicConfig(filename='training_log.log', level=logging.INFO, 
                     format='%(asctime)s:%(levelname)s:%(message)s')
-
-
-
 
 def get_model_by_name(model_name):
     """
@@ -46,26 +46,51 @@ def get_optimizer(model):
     optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
     return optimizer
 
-def quick_test(trainloader, model):
-    try:
-        criterion = get_criterion()
-        optimizer = get_optimizer(model)
-        test_loader = torch.utils.data.DataLoader(trainloader.dataset, batch_size=2, shuffle=False, num_workers=0, 
-                                                  sampler=torch.utils.data.SubsetRandomSampler(range(10)))
-        with profile(activities=[ProfilerActivity.CPU], record_shapes=False, with_stack=False) as prof:
-            with record_function("model_training_quick_test"):
-                for i, data in enumerate(test_loader):
-                    if i >= 1:  # Process only one batch to check for errors
-                        break
-                    images, labels = data
-                    optimizer.zero_grad()
-        # Log the profiling information
-        logging.info(prof.key_averages().table(sort_by="cpu_time_total", row_limit=10))
-        print(f"\nModel {model.__class__.__name__} can be trained.\n")
-    except Exception as e:
-        logging.error("Error during training: ", exc_info=True)
-        print(f"Error during training: {e}")
+class DummyDataset(Dataset):
+    def __init__(self, model_name, num_samples=100, num_classes=10):
+        self.num_samples = num_samples
+        self.num_classes = num_classes
+        self.transform = get_transform_for_model(model_name)
+        # Generate dummy data and labels
+        if model_name == 'Inception':
+            self.data = torch.randn(num_samples, 3, 299, 299)
+        else:
+            self.data = torch.randn(num_samples, 3, 224, 224)
+        self.targets = torch.randint(0, num_classes, (num_samples,))
+
+    def __len__(self):
+        return self.num_samples
+
+    def __getitem__(self, idx):
+        # Convert tensor to PIL Image
+        img = transforms.ToPILImage()(self.data[idx])
+        target = self.targets[idx]
+        # Apply transformations
+        img = self.transform(img)
+        return img, target
     
+def get_dummy_dataloader(model_name, batch_size=10, num_samples=100, num_classes=10):
+    dataset = DummyDataset(model_name, num_samples=num_samples, num_classes=num_classes)
+    dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
+    return dataloader
+
+
+def test_train_model(model_name, local_fast=False):
+    model = get_model_by_name(model_name)
+    
+    if local_fast:
+        trainloader = get_dummy_dataloader(model_name)
+    else:
+        # Replace with your actual data loading logic
+        trainloader, _, classes = load_data(model_name)
+               
+    criterion = get_criterion()
+    optimizer = get_optimizer(model)
+    model.train_model(trainloader, criterion, optimizer)
+    if not local_fast:
+       save_model(model, f"Computer-Vision-Models/Image-Classification/{model_name}.pth")
+    print(f"Done with {model_name}.\n")
+
 def main(fast_local=False):
     """
     Main function to load the CIFAR10 dataset, normalize it, create data loaders for training and testing,
@@ -76,27 +101,15 @@ def main(fast_local=False):
     
     for model_name in model_names:
         # Initialize the model based on model_name
-        model = get_model_by_name(model_name)  # Assume get_model_by_name function exists
-        
-        if fast_local:
-            trainloader, testloader, classes = load_data(model_name, subsample=True, subsample_rate=0.01)
-            quick_test(trainloader, model)  # Pass the model instance instead of model_name
-        else:
-            trainloader, testloader, classes = load_data(model_name)
-            
-            criterion = get_criterion()
-            optimizer = get_optimizer(model)
-            
-            print(f"Training and evaluating {model_name}...")
-            model.train_model(trainloader, criterion, optimizer)
-            save_model(model, f"Computer-Vision-Models/Image-Classification/{model_name}.pth")
-            print(f"Done with {model_name}.\n")
+        #with profile(activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA], record_shapes=True) as prof:
+        test_train_model(model_name, fast_local)
+
 
 
 if __name__ == "__main__":
     """
     Entry point of the script. Calls the main function.
     """
-    main(fast_local=False)
-    
+    main(fast_local=True)
+
     
