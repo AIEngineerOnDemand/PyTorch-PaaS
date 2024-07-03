@@ -14,6 +14,7 @@ import logging
 import torch
 from PIL import Image
 from torch.profiler import profile, ProfilerActivity, record_function
+import argparse
 # Configure logging
 logging.basicConfig(filename='training_log.log', level=logging.INFO, 
                     format='%(asctime)s:%(levelname)s:%(message)s')
@@ -107,9 +108,9 @@ def main(fast_local=False):
 
 
 if __name__ == "__main__":
-    """
-    Entry point of the script. Calls the main function.
-    """
-    main(fast_local=True)
+    parser = argparse.ArgumentParser(description='Train models with optional fast local mode.')
+    parser.add_argument('--fast_local', action='store_true', help='Enable fast local mode for training')
+    args = parser.parse_args()
+    main(fast_local=args.fast_local)
 
     
