@@ -89,7 +89,7 @@ def test_train_model(model_name, local_fast=False):
     model.train_model(trainloader, criterion, optimizer)
     if not local_fast:
        save_model(model, f"Computer-Vision-Models/Image-Classification/{model_name}.pth")
-    print(f"Done with {model_name}.\n")
+    print(f" The model - {model_name} - has been trained.\n")
 
 def main(fast_local=False):
     """
@@ -98,7 +98,7 @@ def main(fast_local=False):
     """
     # List of model names to train and evaluate
     model_names = ['CNN', 'ResNet', 'Inception', 'DenseNet', 'EfficientNet', 'MobileNet', 'ViT']
-    
+
     for model_name in model_names:
         # Initialize the model based on model_name
         #with profile(activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA], record_shapes=True) as prof:
