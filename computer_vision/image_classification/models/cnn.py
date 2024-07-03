@@ -1,10 +1,13 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from .base_model import BaseModel
 
-class CNN(nn.Module):
+
+
+class CNN(BaseModel):
     def __init__(self, num_classes=10):
-        super(CNN, self).__init__()
+        super(CNN, self).__init__(num_classes)
         self.conv1 = nn.Conv2d(3, 6, 5)  # 3 input channels, 6 output channels, 5x5 kernel
         self.pool = nn.MaxPool2d(2, 2)  # 2x2 max pooling
         self.conv2 = nn.Conv2d(6, 16, 5)  # 6 input channels, 16 output channels, 5x5 kernel
@@ -17,7 +20,7 @@ class CNN(nn.Module):
         
         self.fc1 = nn.Linear(self.num_flat_features, 120)  # Dynamically set input size
         self.fc2 = nn.Linear(120, 84)
-        self.fc3 = nn.Linear(84, num_classes)
+        self.fc3 = nn.Linear(84, self.num_classes)
 
     def forward(self, x):
         x = self.pool(F.relu(self.conv1(x)))
