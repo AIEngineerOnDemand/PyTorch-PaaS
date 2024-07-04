@@ -92,25 +92,22 @@ def test_train_model(model_name, local_fast=False):
        save_model(model, f"Computer-Vision-Models/Image-Classification/{model_name}.pth")
     print(f" The model - {model_name} - has been trained.\n")
 
-def main(fast_local=False):
+
+
+def main(model_name, fast_local=False):
     """
-    Main function to load the CIFAR10 dataset, normalize it, create data loaders for training and testing,
-    train and evaluate all the models, and save the results.
+    Main function to train a single model.
     """
-    # List of model names to train and evaluate
-    model_names = ['CNN', 'ResNet', 'Inception', 'DenseNet', 'EfficientNet', 'MobileNet', 'ViT']
-
-    for model_name in model_names:
-        # Initialize the model based on model_name
-        #with profile(activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA], record_shapes=True) as prof:
-        test_train_model(model_name, fast_local)
-
-
+    # Initialize and train the model based on model_name
+    test_train_model(model_name, fast_local)
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Train models with optional fast local mode.')
-    parser.add_argument('--fast_local', action='store_true', help='Enable fast local mode for training')
-    args = parser.parse_args()
-    main(fast_local=args.fast_local)
+    # List of model names that are supported for training
+    model_names = ['CNN', 'ResNet', 'Inception', 'DenseNet', 'EfficientNet', 'MobileNet', 'ViT']
 
+    parser = argparse.ArgumentParser(description='Train a specific model with optional fast local mode.')
+    parser.add_argument('model_name', type=str, choices=model_names, help='Name of the model to train. Supported models: ' + ', '.join(model_names))
+    parser.add_argument('--fast_local', action='store_true', help='Enable fast local mode for training')
     
+    args = parser.parse_args()
+    main(args.model_name, fast_local=args.fast_local)
