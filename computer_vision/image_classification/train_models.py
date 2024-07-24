@@ -3,7 +3,6 @@ import argparse
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from torchvision import transforms
 from torch.utils.data import DataLoader
 from models.cnn import CNN
 from models.resnet import ResNet
@@ -12,8 +11,9 @@ from models.densenet import DenseNet
 from models.efficientnet import EfficientNet
 from models.mobilenet import MobileNet
 from models.vit import ViT
-from utils.utils import DummyDataset, get_transform_for_model
+from utils.utils import DummyDataset
 import logging
+import time
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s:%(levelname)s:%(message)s')
@@ -63,12 +63,19 @@ def train(args):
             optimizer.step()
         logging.info(f'Epoch {epoch+1}, Loss: {loss.item()}')
 
-    # Save the trained model
+    # Save the trained model with a unique name
     model_dir = args.model_dir
-    with open(os.path.join(model_dir, 'model.pth'), 'wb') as f:
+    model_name = args.model_name
+    timestamp = int(time.time())  # Use timestamp as a simple way to generate a unique identifier
+
+    model_filename = f'{model_name}_{timestamp}_model.pth'
+    model_info_filename = f'{model_name}_{timestamp}_model_info.pth'
+
+    with open(os.path.join(model_dir, model_filename), 'wb') as f:
         torch.save(model.state_dict(), f)
-    with open(os.path.join(model_dir, 'model_info.pth'), 'wb') as f:
-        torch.save({'model_name': args.model_name}, f)
+
+    with open(os.path.join(model_dir, model_info_filename), 'wb') as f:
+        torch.save({'model_name': model_name}, f)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
