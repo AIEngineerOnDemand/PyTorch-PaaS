@@ -53,7 +53,7 @@ def train(args):
         pass
 
     # Training loop
-    model.train()
+    model.train_model(dataloader, criterion, optimizer)
     for epoch in range(args.epochs):
         for inputs, labels in dataloader:
             optimizer.zero_grad()
