@@ -8,10 +8,36 @@ import numpy as np
 
 
 from torchvision import datasets, transforms
-from torch.utils.data import DataLoader, Subset
+from torch.utils.data import Dataset, DataLoader, Subset
 import numpy as np
 import torch
 
+class DummyDataset(Dataset):
+    def __init__(self, model_name, num_samples=100, num_classes=10):
+        self.num_samples = num_samples
+        self.num_classes = num_classes
+        self.transform = get_transform_for_model(model_name)
+        # Generate dummy data and labels
+        if model_name == 'Inception':
+            self.data = torch.randn(num_samples, 3, 299, 299)
+        else:
+            self.data = torch.randn(num_samples, 3, 224, 224)
+        self.targets = torch.randint(0, num_classes, (num_samples,))
+
+    def __len__(self):
+        return self.num_samples
+
+    def __getitem__(self, idx):
+        # Convert tensor to PIL Image, apply transformations, and return
+        img = transforms.ToPILImage()(self.data[idx])
+        target = self.targets[idx]
+        img = self.transform(img)
+        return img, target
+
+def get_dummy_dataloader(model_name, batch_size=10, num_samples=100, num_classes=10):
+    dataset = DummyDataset(model_name, num_samples=num_samples, num_classes=num_classes)
+    dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
+    return dataloader
 def get_transform_for_model(model_name):
     if model_name == 'Inception':
         resize_transform = transforms.Resize((299, 299))
