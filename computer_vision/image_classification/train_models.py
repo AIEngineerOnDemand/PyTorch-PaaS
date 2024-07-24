@@ -1,7 +1,10 @@
+import os
+import argparse
+import torch
 import torch.nn as nn
 import torch.optim as optim
 from torchvision import transforms
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import DataLoader
 from models.cnn import CNN
 from models.resnet import ResNet
 from models.inception import Inception
@@ -9,20 +12,13 @@ from models.densenet import DenseNet
 from models.efficientnet import EfficientNet
 from models.mobilenet import MobileNet
 from models.vit import ViT
-from utils.utils import load_data, save_model,get_transform_for_model
+from utils.utils import DummyDataset, get_transform_for_model
 import logging
-import torch
-from PIL import Image
-from torch.profiler import profile, ProfilerActivity, record_function
-import argparse
+
 # Configure logging
-logging.basicConfig(filename='training_log.log', level=logging.INFO, 
-                    format='%(asctime)s:%(levelname)s:%(message)s')
+logging.basicConfig(level=logging.INFO, format='%(asctime)s:%(levelname)s:%(message)s')
 
 def get_model_by_name(model_name):
-    """
-    Returns an instance of the model class based on the model_name argument.
-    """
     model_classes = {
         'CNN': CNN,
         'ResNet': ResNet,
@@ -38,76 +34,51 @@ def get_model_by_name(model_name):
         raise ValueError(f"Model {model_name} is not supported.")
 
 def get_criterion():
-    # Define the criterion
-    criterion = nn.CrossEntropyLoss()
-    return criterion
+    return nn.CrossEntropyLoss()
 
 def get_optimizer(model):
-    # Define the optimizer
-    optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
-    return optimizer
+    return optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
 
-class DummyDataset(Dataset):
-    def __init__(self, model_name, num_samples=100, num_classes=10):
-        self.num_samples = num_samples
-        self.num_classes = num_classes
-        self.transform = get_transform_for_model(model_name)
-        # Generate dummy data and labels
-        if model_name == 'Inception':
-            self.data = torch.randn(num_samples, 3, 299, 299)
-        else:
-            self.data = torch.randn(num_samples, 3, 224, 224)
-        self.targets = torch.randint(0, num_classes, (num_samples,))
-
-    def __len__(self):
-        return self.num_samples
-
-    def __getitem__(self, idx):
-        # Convert tensor to PIL Image
-        img = transforms.ToPILImage()(self.data[idx])
-        target = self.targets[idx]
-        # Apply transformations
-        img = self.transform(img)
-        return img, target
-    
-def get_dummy_dataloader(model_name, batch_size=10, num_samples=100, num_classes=10):
-    dataset = DummyDataset(model_name, num_samples=num_samples, num_classes=num_classes)
-    dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
-    return dataloader
-
-
-def test_train_model(model_name, local_fast=False):
-    model = get_model_by_name(model_name)
-    
-    if local_fast:
-        trainloader = get_dummy_dataloader(model_name)
-    else:
-        # Replace with your actual data loading logic
-        trainloader, _, classes = load_data(model_name)
-               
+def train(args):
+    model = get_model_by_name(args.model_name)
     criterion = get_criterion()
     optimizer = get_optimizer(model)
-    model.train_model(trainloader, criterion, optimizer)
-    if not local_fast:
-       save_model(model, f"Computer-Vision-Models/Image-Classification/{model_name}.pth")
-    print(f" The model - {model_name} - has been trained.\n")
 
+    if args.fast_local_mode:
+        # Use DummyDataset for fast local training
+        dataset = DummyDataset(args.model_name)
+        dataloader = DataLoader(dataset, batch_size=10, shuffle=True)
+    else:
+        # Placeholder for actual data loading logic for SageMaker training
+        pass
 
+    # Training loop
+    model.train()
+    for epoch in range(args.epochs):
+        for inputs, labels in dataloader:
+            optimizer.zero_grad()
+            outputs = model(inputs)
+            loss = criterion(outputs, labels)
+            loss.backward()
+            optimizer.step()
+        logging.info(f'Epoch {epoch+1}, Loss: {loss.item()}')
 
-def main(model_name, fast_local=False):
-    """
-    Main function to train a single model.
-    """
-    # Initialize and train the model based on model_name
-    test_train_model(model_name, fast_local)
+    # Save the trained model
+    model_dir = args.model_dir
+    with open(os.path.join(model_dir, 'model.pth'), 'wb') as f:
+        torch.save(model.state_dict(), f)
+    with open(os.path.join(model_dir, 'model_info.pth'), 'wb') as f:
+        torch.save({'model_name': args.model_name}, f)
 
-if __name__ == "__main__":
-    # List of model names that are supported for training
-    model_names = ['CNN', 'ResNet', 'Inception', 'DenseNet', 'EfficientNet', 'MobileNet', 'ViT']
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
 
-    parser = argparse.ArgumentParser(description='Train a specific model with optional fast local mode.')
-    parser.add_argument('model_name', type=str, choices=model_names, help='Name of the model to train. Supported models: ' + ', '.join(model_names))
-    parser.add_argument('--fast_local', action='store_true', help='Enable fast local mode for training')
-    
+    # SageMaker container environment
+    parser.add_argument('--model_name', type=str, default='MobileNet')
+    parser.add_argument('--epochs', type=int, default=10)
+    parser.add_argument('--model_dir', type=str, default=os.environ.get('SM_MODEL_DIR', '.'))
+    parser.add_argument('--fast_local_mode', action='store_true', help='Use DummyDataset for fast local training, some models take too long to train locally even with a small sample of the dataset')
+
     args = parser.parse_args()
-    main(args.model_name, fast_local=args.fast_local)
+
+    train(args)
