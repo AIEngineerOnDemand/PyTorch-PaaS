@@ -53,15 +53,7 @@ def train(args):
         pass
 
     # Training loop
-    model.train_model(dataloader, criterion, optimizer)
-    for epoch in range(args.epochs):
-        for inputs, labels in dataloader:
-            optimizer.zero_grad()
-            outputs = model(inputs)
-            loss = criterion(outputs, labels)
-            loss.backward()
-            optimizer.step()
-        logging.info(f'Epoch {epoch+1}, Loss: {loss.item()}')
+    model.train_model(dataloader, criterion, optimizer, args.epochs)
 
     # Save the trained model with a unique name
     model_dir = args.model_dir
