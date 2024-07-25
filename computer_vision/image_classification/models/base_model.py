@@ -3,6 +3,7 @@ import torch.nn as nn
 import numpy as np
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, roc_auc_score, log_loss
 from sklearn.preprocessing import label_binarize
+import logging
 
 class BaseModel(nn.Module):
     def __init__(self, num_classes=10):
@@ -14,20 +15,48 @@ class BaseModel(nn.Module):
         x = self.model(x)
         return x
 
-    def train_model(self, trainloader, criterion, optimizer):
+    def train_model(self, trainloader, criterion, optimizer, epochs):
+        """
+        Train the model using the provided dataloader, criterion, and optimizer.
+
+        Args:
+            trainloader (DataLoader): DataLoader for the training data.
+            criterion (torch.nn.Module): Loss function.
+            optimizer (torch.optim.Optimizer): Optimizer for updating model parameters.
+            epochs (int): Number of epochs to train the model.
+
+        Returns:
+            list: A list of average losses for each epoch.
+
+        Steps:
+            1. Set the model to training mode.
+            2. Loop over the number of epochs.
+            3. For each epoch, loop over the training data.
+            4. Zero the parameter gradients.
+            5. Perform the forward pass to get model outputs.
+            6. Compute the loss using the criterion.
+            7. Perform the backward pass to compute gradients.
+            8. Update the model parameters using the optimizer.
+            9. Log the loss for each epoch.
+        """
         self.train()  # Set the model to training mode
-        running_loss = 0.0
-        for i, data in enumerate(trainloader, 0):
-            inputs, labels = data
-            optimizer.zero_grad()  # Zero the parameter gradients
+        epoch_losses = []
+        for epoch in range(epochs):
+            running_loss = 0.0
+            for inputs, labels in trainloader:
+                optimizer.zero_grad()  # Zero the parameter gradients
 
-            outputs = self(inputs)  # Forward pass
-            loss = criterion(outputs, labels)  # Compute loss
-            loss.backward()  # Backward pass
-            optimizer.step()  # Optimize
+                outputs = self(inputs)  # Forward pass
+                loss = criterion(outputs, labels)  # Compute loss
+                loss.backward()  # Backward pass
+                optimizer.step()  # Optimize
 
-            running_loss += loss.item()
-        return running_loss
+                running_loss += loss.item()
+            average_loss = running_loss / len(trainloader)
+            epoch_losses.append(average_loss)
+            logging.info(f'Epoch {epoch+1}, Loss: {average_loss}')
+        
+        return epoch_losses
     
     def evaluate(self, testloader):
         self.eval()  # Set the model to evaluation mode
