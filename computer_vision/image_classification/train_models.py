@@ -5,7 +5,7 @@ import argparse
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from torch.utils.data import DataLoader
+from torch.utils.data import get_dummy_dataloader
 from models.cnn import CNN
 from models.resnet import ResNet
 from models.inception import Inception
@@ -37,7 +37,7 @@ def get_model_by_name(model_name):
         'ViT': ViT
     }
     if model_name in model_classes:
-        return model_classes[model_name]()
+        return model_classes[model_name](num_classes=10)  # Ensure num_classes is passed
     else:
         raise ValueError(f"Model {model_name} is not supported.")
 
@@ -59,28 +59,14 @@ def train(args):
 
     if args.fast_local_mode:
         # Use DummyDataset for fast local training
-        dataset = DummyDataset(args.model_name)
-        dataloader = DataLoader(dataset, batch_size=10, shuffle=True)
+        dataloader = get_dummy_dataloader(args.model_name)
     else:
         # Load the actual dataset for SageMaker training
         trainloader, _, classes = load_data(args.model_name)
         dataloader = trainloader  # Assuming you want to use the training data loader
 
-    # Training loop
-    for epoch in range(args.epochs):
-        model.train()
-        running_loss = 0.0
-        for inputs, labels in dataloader:
-            inputs, labels = inputs.to(device), labels.to(device)
-
-            optimizer.zero_grad()
-            outputs = model(inputs)
-            loss = criterion(outputs, labels)
-            loss.backward()
-            optimizer.step()
-
-            running_loss += loss.item()
-        logging.info(f'Epoch [{epoch+1}/{args.epochs}], Loss: {running_loss/len(dataloader)}')
+    # Train the model using the train_model method from BaseModel
+    model.train_model(dataloader, criterion, optimizer, args.epochs)
 
 def main():
     # Parse command-line arguments
