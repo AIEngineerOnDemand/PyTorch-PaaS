@@ -5,7 +5,7 @@ import argparse
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from utils import get_dummy_dataloader
+from utils.utils import get_dummy_dataloader
 from models.cnn import CNN
 from models.resnet import ResNet
 from models.inception import Inception
