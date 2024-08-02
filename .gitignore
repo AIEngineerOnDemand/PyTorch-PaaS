@@ -14,3 +14,4 @@ computer_vision/image_classification/training_log.log
 training_log.log
 
 PytorchForSagemaker/*
+.env
