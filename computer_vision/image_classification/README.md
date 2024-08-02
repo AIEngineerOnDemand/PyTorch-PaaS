@@ -18,8 +18,7 @@ In this project, we explore several popular deep learning models used for image 
 
 We will be training and evaluating all these models on our dataset and comparing their performance. The choice of model depends on the specific task, the size and nature of our dataset, computational resources, and the trade-off between speed and accuracy that we're willing to make.
 
-
-PyTorch's flexibility and efficient tensor computations make it suitable for tasks like image classification, object detection, and image generation. 
+PyTorch's flexibility and efficient tensor computations make it suitable for tasks like image classification, object detection, and image generation.
 
 When evaluating image classification models in PyTorch, several common metrics are used:
 
@@ -29,4 +28,24 @@ When evaluating image classification models in PyTorch, several common metrics a
 - **F1 Score**: The weighted average of Precision and Recall.
 - **Confusion Matrix**: A table that describes the performance of a classification model on a set of test data for which the true values are known.
 - **Area Under the ROC Curve (AUC-ROC)**: A plot of the true positive rate against the false positive rate.
-- **Log Loss**: Often used in place of accuracy
+- **Log Loss**: Often used in place of accuracy.
+
+## Running the Training on SageMaker
+
+This project is designed to run on AWS SageMaker using local mode. We use the SageMaker SDK and CLI to set up and execute the training jobs. Below is a brief overview of the key scripts involved:
+
+### `run_training.py`
+
+This script initializes the SageMaker session, creates a temporary directory for dummy data, dynamically constructs the `source_dir` path, and creates a PyTorch estimator. The estimator is then fitted using local mode.
+
+### `train_models.py`
+
+This script installs dependencies, configures logging, and defines the training process. It includes functions to get the model by name, criterion, and optimizer. The main training loop handles the training process, including loading the dataset, moving data to the appropriate device (CPU/GPU), and logging the training progress.
+
+### Example Usage
+
+To run the training script, execute the following command:
+
+```sh
+python run_training.py
+```
