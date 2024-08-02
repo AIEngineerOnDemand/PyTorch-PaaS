@@ -1,5 +1,3 @@
-# PyTorch Use Cases
-
 This repository is dedicated to showcasing the main use cases of PyTorch, a popular open-source machine learning library. PyTorch is widely used in the tech industry for a variety of tasks, including:
 
 ## Computer Vision
@@ -42,38 +40,22 @@ This modular approach also facilitates the implementation of mock models and dat
 
 By incorporating these practices into our development process, we aim to create a more efficient and error-resistant workflow. This allows our team to focus on innovation and the development of high-quality features, even when working on devices with limited computational power. It's a testament to our commitment to not only achieving our project goals but also to adhering to best practices in software development.
 
-## Running the Code on Google Colab
+## Running the Code on SageMaker
 
-Follow these steps to run the `main.py` script on Google Colab:
+This project is designed to run on AWS SageMaker using local mode. We use the SageMaker SDK and CLI to set up and execute the training jobs. Below is a brief overview of the key scripts involved:
 
-1. Open a new Google Colab notebook.
+### `run_training.py`
 
-2. Clone the repository into the current directory in your Google Colab environment by running the following command in a new cell:
+This script initializes the SageMaker session, creates a temporary directory for dummy data, dynamically constructs the `source_dir` path, and creates a PyTorch estimator. The estimator is then fitted using local mode.
 
-```python
-!git clone https://github.com/AIEngineerOnDemand/PyTorch-Use-Cases.git
-```
+### `train_models.py`
 
-Running the Code on a GPU
-To run your Google Colab notebook on a GPU, you can follow these steps:
+This script installs dependencies, configures logging, and defines the training process. It includes functions to get the model by name, criterion, and optimizer. The main training loop handles the training process, including loading the dataset, moving data to the appropriate device (CPU/GPU), and logging the training progress.
 
-Click on the 'Runtime' menu in the top toolbar.
-Select 'Change runtime type' from the dropdown menu.
-In the pop-up window, under 'Hardware accelerator', select 'GPU' from the dropdown menu.
-Click 'Save'.
-After doing this, your notebook will have access to a GPU, and any TensorFlow or PyTorch code you run will automatically use the GPU.
+### Example Usage
 
-You can verify that your notebook is using a GPU by running the following code:
+To run the training script, execute the following command:
 
-```python
-import torch
-print(torch.cuda.is_available())
-```
-This will print True if a GPU is available and False otherwise.
-
-
-3.Navigate to the cloned repository:
-
-```python
-%cd PyTorch-Use-Cases/computer_vision/image_classification
+```sh
+python run_training.py
 ```
