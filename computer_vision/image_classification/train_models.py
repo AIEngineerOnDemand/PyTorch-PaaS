@@ -48,7 +48,12 @@ def get_optimizer(model):
     return optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
 
 def train(args):
+    # Check if GPU is available
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    logging.info(f'Using device: {device}')
+
     model = get_model_by_name(args.model_name)
+    model.to(device)
     criterion = get_criterion()
     optimizer = get_optimizer(model)
 
@@ -58,34 +63,34 @@ def train(args):
         dataloader = DataLoader(dataset, batch_size=10, shuffle=True)
     else:
         # Placeholder for actual data loading logic for SageMaker training
-        pass
+        dataset = DummyDataset()  # Replace with actual dataset loading
+        dataloader = DataLoader(dataset, batch_size=32, shuffle=True)
 
     # Training loop
-    model.train_model(dataloader, criterion, optimizer, args.epochs)
+    for epoch in range(args.epochs):
+        model.train()
+        running_loss = 0.0
+        for inputs, labels in dataloader:
+            inputs, labels = inputs.to(device), labels.to(device)
 
-    # Save the trained model with a unique name
-    model_dir = args.model_dir
-    model_name = args.model_name
-    timestamp = int(time.time())  # Use timestamp as a simple way to generate a unique identifier
+            optimizer.zero_grad()
+            outputs = model(inputs)
+            loss = criterion(outputs, labels)
+            loss.backward()
+            optimizer.step()
 
-    model_filename = f'{model_name}_{timestamp}_model.pth'
-    model_info_filename = f'{model_name}_{timestamp}_model_info.pth'
+            running_loss += loss.item()
+        logging.info(f'Epoch [{epoch+1}/{args.epochs}], Loss: {running_loss/len(dataloader)}')
 
-    with open(os.path.join(model_dir, model_filename), 'wb') as f:
-        torch.save(model.state_dict(), f)
-
-    with open(os.path.join(model_dir, model_info_filename), 'wb') as f:
-        torch.save({'model_name': model_name}, f)
-
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-
-    # SageMaker container environment
-    parser.add_argument('--model_name', type=str, default='MobileNet')
-    parser.add_argument('--epochs', type=int, default=10)
-    parser.add_argument('--model_dir', type=str, default=os.environ.get('SM_MODEL_DIR', '.'))
-    parser.add_argument('--fast_local_mode', action='store_true', help='Use DummyDataset for fast local training, some models take too long to train locally even with a small sample of the dataset')
-
+def main():
+    # Parse command-line arguments
+    parser = argparse.ArgumentParser(description='Train a model.')
+    parser.add_argument('--model_name', type=str, required=True, help='Name of the model to train')
+    parser.add_argument('--epochs', type=int, default=10, help='Number of epochs to train')
+    parser.add_argument('--fast_local_mode', action='store_true', help='Use fast local mode with dummy dataset')
     args = parser.parse_args()
 
     train(args)
+
+if __name__ == '__main__':
+    main()
