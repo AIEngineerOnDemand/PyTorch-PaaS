@@ -1,12 +1,5 @@
 import subprocess
 import sys
-
-# Install dependencies from requirements.txt
-subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", "requirements.txt"])
-# Upgrade torchvision to the latest version
-# Upgrade torchvision to version 0.12.0 or later
-#subprocess.check_call([sys.executable, "-m", "pip", "install", "--upgrade", "torchvision>=0.12.0"])
-
 import os
 import argparse
 import torch
@@ -22,10 +15,13 @@ from models.mobilenet import MobileNet
 from models.vit import ViT
 from utils.utils import DummyDataset
 import torchvision
-print(f"torchvision version: {torchvision.__version__}")
 import logging
 import time
 
+# Install dependencies from requirements.txt
+subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", "requirements.txt"])
+
+print(f"torchvision version: {torchvision.__version__}")
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s:%(levelname)s:%(message)s')
