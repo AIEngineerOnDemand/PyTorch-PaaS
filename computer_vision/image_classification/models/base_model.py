@@ -49,7 +49,7 @@ class BaseModel(nn.Module):
                 outputs = self(inputs)  # Forward pass
                 loss = criterion(outputs, labels)  # Compute loss
                 loss.backward()  # Backward pass
-                optimizer.step()  # Optimize
+                optimizer.step()  # Optimize parameters
 
                 running_loss += loss.item()
             average_loss = running_loss / len(trainloader)
