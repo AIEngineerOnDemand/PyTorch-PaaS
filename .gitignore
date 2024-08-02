@@ -12,3 +12,5 @@ poetry
 computer_vision/image_classification/debug.ipynb
 computer_vision/image_classification/training_log.log
 training_log.log
+
+PytorchForSagemaker/*
