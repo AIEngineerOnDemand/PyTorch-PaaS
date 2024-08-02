@@ -5,7 +5,7 @@ import argparse
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from torch.utils.data import get_dummy_dataloader
+from utils import get_dummy_dataloader
 from models.cnn import CNN
 from models.resnet import ResNet
 from models.inception import Inception
@@ -13,7 +13,7 @@ from models.densenet import DenseNet
 from models.efficientnet import EfficientNet
 from models.mobilenet import MobileNet
 from models.vit import ViT
-from utils.utils import DummyDataset, load_data
+from utils.utils import load_data
 import torchvision
 import logging
 import time
@@ -59,14 +59,12 @@ def train(args):
 
     if args.fast_local_mode:
         # Use DummyDataset for fast local training
-        dataloader = get_dummy_dataloader(args.model_name)
+        trainloader = get_dummy_dataloader(args.model_name)
     else:
         # Load the actual dataset for SageMaker training
-        trainloader, _, classes = load_data(args.model_name)
-        dataloader = trainloader  # Assuming you want to use the training data loader
-
+        trainloader, _ = load_data(args.model_name)
     # Train the model using the train_model method from BaseModel
-    model.train_model(dataloader, criterion, optimizer, args.epochs)
+    model.train_model(trainloader, criterion, optimizer, args.epochs)
 
 def main():
     # Parse command-line arguments
