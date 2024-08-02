@@ -3,7 +3,7 @@ from torchvision import datasets, transforms
 import os
 import matplotlib.pyplot as plt
 import seaborn as sns
-from torch.utils.data import Subset
+from torch.utils.data import Subset,DataLoader
 import numpy as np
 
 
@@ -38,6 +38,8 @@ def get_dummy_dataloader(model_name, batch_size=10, num_samples=100, num_classes
     dataset = DummyDataset(model_name, num_samples=num_samples, num_classes=num_classes)
     dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
     return dataloader
+
+
 def get_transform_for_model(model_name):
     if model_name == 'Inception':
         resize_transform = transforms.Resize((299, 299))
@@ -112,11 +114,10 @@ def load_data(model_name,subsample=False, subsample_rate=False):
         trainset = Subset(trainset, train_indices)
         testset = Subset(testset, test_indices)
 
-    trainloader = torch.utils.data.DataLoader(trainset, batch_size=4, shuffle=True, num_workers=2)
-    testloader = torch.utils.data.DataLoader(testset, batch_size=4, shuffle=False, num_workers=2)
+    trainloader = DataLoader(trainset, batch_size=4, shuffle=True, num_workers=2)
+    testloader = DataLoader(testset, batch_size=4, shuffle=False, num_workers=2)
 
-    classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
-    return trainloader, testloader, classes
+    return trainloader, testloader
 
 def save_model(model, filename):
     """
