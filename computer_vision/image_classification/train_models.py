@@ -13,7 +13,7 @@ from models.densenet import DenseNet
 from models.efficientnet import EfficientNet
 from models.mobilenet import MobileNet
 from models.vit import ViT
-from utils.utils import DummyDataset
+from utils.utils import DummyDataset, load_data
 import torchvision
 import logging
 import time
@@ -62,9 +62,9 @@ def train(args):
         dataset = DummyDataset(args.model_name)
         dataloader = DataLoader(dataset, batch_size=10, shuffle=True)
     else:
-        # Placeholder for actual data loading logic for SageMaker training
-        dataset = DummyDataset()  # Replace with actual dataset loading
-        dataloader = DataLoader(dataset, batch_size=32, shuffle=True)
+        # Load the actual dataset for SageMaker training
+        trainloader, _, classes = load_data(args.model_name)
+        dataloader = trainloader  # Assuming you want to use the training data loader
 
     # Training loop
     for epoch in range(args.epochs):
