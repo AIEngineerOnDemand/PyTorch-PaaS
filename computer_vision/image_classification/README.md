@@ -32,11 +32,11 @@ When evaluating image classification models in PyTorch, several common metrics a
 
 ## Running the Training on SageMaker
 
-This project is designed to run on AWS SageMaker using local mode. We use the SageMaker SDK and CLI to set up and execute the training jobs. Below is a brief overview of the key scripts involved:
+This project is designed to run on AWS SageMaker using either local mode or AWS training mode. We use the SageMaker SDK and CLI to set up and execute the training jobs. Below is a brief overview of the key scripts involved:
 
 ### `run_training.py`
 
-This script initializes the SageMaker session, creates a temporary directory for dummy data, dynamically constructs the `source_dir` path, and creates a PyTorch estimator. The estimator is then fitted using local mode.
+This script initializes the SageMaker session, creates a temporary directory for dummy data, dynamically constructs the `source_dir` path, and creates a PyTorch estimator. The estimator is then fitted using either local mode or AWS training mode based on the `execution_mode` parameter.
 
 ### `train_models.py`
 
@@ -47,5 +47,5 @@ This script installs dependencies, configures logging, and defines the training 
 To run the training script, execute the following command:
 
 ```sh
-python run_training.py
+python run_training.py --execution_mode fast_local_mode
 ```
