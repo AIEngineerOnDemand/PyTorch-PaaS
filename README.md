@@ -4,7 +4,8 @@ This repository is dedicated to showcasing the main use cases of PyTorch, a popu
 
 ## Use Cases
 
-### Computer Vision
+### [ Computer Vision](computer_vision/image_classification/README.md)
+
 
 PyTorch's flexibility and efficient tensor computations make it suitable for tasks like image classification, object detection, and image generation.
 
@@ -12,19 +13,25 @@ PyTorch's flexibility and efficient tensor computations make it suitable for tas
 
 Companies use PyTorch for tasks like text classification, sentiment analysis, machine translation, and more.
 
+*Note: This section is coming up.*
+
 ### Reinforcement Learning
 
 PyTorch is used to develop models that can learn to make decisions from their experiences.
+
+*Note: This section is coming up.*
 
 ### Generative Models
 
 PyTorch is used in creating generative models like GANs (Generative Adversarial Networks) which can generate new content.
 
+*Note: This section is coming up.*
+
 ### Research
 
 Due to its dynamic computation graph and efficient memory usage, PyTorch is also a popular choice in the research community.
 
-Stay tuned for more updates and examples of PyTorch use cases.
+*Note: This section is coming up.*
 
 ## Development Approach
 
