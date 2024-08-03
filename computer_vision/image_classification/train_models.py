@@ -1,6 +1,5 @@
 import subprocess
 import sys
-import os
 import argparse
 import torch
 import torch.nn as nn
@@ -57,7 +56,7 @@ def train(args):
     criterion = get_criterion()
     optimizer = get_optimizer(model)
 
-    if args.fast_local_mode:
+    if args.execution_mode == 'fast_local_mode':
         # Use DummyDataset for fast local training
         trainloader = get_dummy_dataloader(args.model_name)
     else:
@@ -71,7 +70,7 @@ def main():
     parser = argparse.ArgumentParser(description='Train a model.')
     parser.add_argument('--model_name', type=str, required=True, help='Name of the model to train')
     parser.add_argument('--epochs', type=int, default=10, help='Number of epochs to train')
-    parser.add_argument('--fast_local_mode', action='store_true', help='Use fast local mode with dummy dataset')
+    parser.add_argument('--execution_mode', type=str, choices=['fast_local_mode', 'aws_training'], required=True, help='Execution mode: fast_local_mode or aws_training')
     args = parser.parse_args()
 
     train(args)
