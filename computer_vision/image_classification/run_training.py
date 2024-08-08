@@ -4,17 +4,16 @@ import boto3
 import sagemaker
 from sagemaker.pytorch import PyTorch
 import sys
-import argparse
+from arg_parser import get_common_parser
+
+# Parse arguments
+parser = get_common_parser()
+args = parser.parse_args()
 
 # Add the root directory to the system path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
 from config import SAGEMAKER_ROLE
-
-# Parse command-line arguments
-parser = argparse.ArgumentParser(description='Run training script.')
-parser.add_argument('--execution_mode', type=str, choices=['fast_local_mode', 'aws_training'], required=True, help='Execution mode: fast_local_mode or aws_training')
-args = parser.parse_args()
 
 # Initialize SageMaker session
 sagemaker_session = sagemaker.Session()
@@ -33,9 +32,8 @@ source_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..',
 # Create an S3 bucket to save artifacts if in aws_training mode
 if args.execution_mode == 'aws_training':
     s3_client = boto3.client('s3')
-    bucket_name = 'image-detection-trained-model'
+    bucket_name = args.bucket_name
     s3_client.create_bucket(Bucket=bucket_name)
-    s3_client.upload_file(dummy_data_path, bucket_name, 'input/dummy_data.txt')
 
 # Create the PyTorch estimator
 estimator = PyTorch(
@@ -46,11 +44,15 @@ estimator = PyTorch(
     py_version='py310',
     script_mode=True,
     instance_count=1,
-    instance_type='local' if args.execution_mode == 'fast_local_mode' else 'ml.m5.large',
+    instance_type='local' if args.execution_mode == 'fast_local_mode' else  'ml.m5.xlarge',
+    use_spot_instances=True,  # Enable Spot Instances
+    max_wait=3600,  # Maximum wait time for Spot Instances (in seconds)
+    max_run=3600,  # Maximum runtime for the training job
     hyperparameters={
         'model_name': 'MobileNet',
         'epochs': 10,
-        'execution_mode': args.execution_mode
+        'execution_mode': args.execution_mode,
+        'bucket_name': bucket_name if args.execution_mode == 'aws_training' else ''
     },
     output_path=f's3://{bucket_name}/output' if args.execution_mode == 'aws_training' else None
 )
@@ -60,3 +62,8 @@ if args.execution_mode == 'fast_local_mode':
     estimator.fit(f'file://{tmpdirname}')
 else:
     estimator.fit(f's3://{bucket_name}/input')
+    
+# # Delete the SageMaker model if in aws_training mode
+# if args.execution_mode == 'aws_training':
+#     sagemaker_client = boto3.client('sagemaker')
+#     sagemaker_client.delete_model(ModelName=estimator.latest_training_job.name)    
