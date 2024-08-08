@@ -65,10 +65,15 @@ def train(args):
     # Train the model using the train_model method from BaseModel
     model.train_model(trainloader, criterion, optimizer, args.epochs)
 
-    # Save the model to S3
+     # Save the model to S3 with versioning
     if args.execution_mode == 'aws_training':
-        save_model(model, f's3://{args.bucket_name}/model.pth')
-
+        current_time = time.strftime("%Y%m%d-%H%M%S")
+        if args.subsample:
+            version = f"{args.model_name}_subsample_{args.subsample_rate}_{current_time}"
+        else:
+            version = f"{args.model_name}_{current_time}"
+        save_model(model, f's3://{args.bucket_name}/model_{version}.pth')
+        
 def main():
     # Parse command-line arguments
     parser = get_common_parser()
