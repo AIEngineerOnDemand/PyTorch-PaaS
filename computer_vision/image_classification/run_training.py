@@ -5,6 +5,7 @@ import sagemaker
 from sagemaker.pytorch import PyTorch
 import sys
 from arg_parser import get_common_parser
+import logging
 
 # Parse arguments
 parser = get_common_parser()
@@ -28,6 +29,30 @@ with open(dummy_data_path, 'w') as f:
 
 # Dynamically construct the source_dir path
 source_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'computer_vision', 'image_classification'))
+
+
+if args.execution_mode == 'aws_training':
+
+    # Initialize S3 client
+    s3 = boto3.client('s3')
+
+    def create_bucket_if_not_exists(bucket_name):
+        try:
+            # Check if the bucket exists
+            s3.head_bucket(Bucket=bucket_name)
+            logging.info(f"Bucket {bucket_name} already exists.")
+        except s3.exceptions.ClientError as e:
+            # If a ClientError is thrown, then the bucket does not exist.
+            if e.response['Error']['Code'] == '404':
+                # Create the bucket
+                s3.create_bucket(Bucket=bucket_name)
+                logging.info(f"Bucket {bucket_name} created.")
+            else:
+                # If the error is not a 404, re-raise the exception
+                raise
+    bucket_name = args.bucket_name
+    create_bucket_if_not_exists(bucket_name)
+
 
 # Create an S3 bucket to save artifacts if in aws_training mode
 if args.execution_mode == 'aws_training':
