@@ -53,13 +53,6 @@ if args.execution_mode == 'aws_training':
     bucket_name = args.bucket_name
     create_bucket_if_not_exists(bucket_name)
 
-
-# Create an S3 bucket to save artifacts if in aws_training mode
-if args.execution_mode == 'aws_training':
-    s3_client = boto3.client('s3')
-    bucket_name = args.bucket_name
-    s3_client.create_bucket(Bucket=bucket_name)
-
 # Create the PyTorch estimator
 estimator = PyTorch(
     entry_point='train_models.py',
