@@ -1,10 +1,10 @@
 import subprocess
 import sys
-import argparse
+from arg_parser import get_common_parser
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from utils.utils import get_dummy_dataloader
+from utils.utils import get_dummy_dataloader, save_model
 from models.cnn import CNN
 from models.resnet import ResNet
 from models.inception import Inception
@@ -61,16 +61,17 @@ def train(args):
         trainloader = get_dummy_dataloader(args.model_name)
     else:
         # Load the actual dataset for SageMaker training
-        trainloader, _ = load_data(args.model_name)
+        trainloader, _ = load_data(args.model_name, subsample=args.subsample, subsample_rate=args.subsample_rate)
     # Train the model using the train_model method from BaseModel
     model.train_model(trainloader, criterion, optimizer, args.epochs)
 
+    # Save the model to S3
+    if args.execution_mode == 'aws_training':
+        save_model(model, f's3://{args.bucket_name}/model.pth')
+
 def main():
     # Parse command-line arguments
-    parser = argparse.ArgumentParser(description='Train a model.')
-    parser.add_argument('--model_name', type=str, required=True, help='Name of the model to train')
-    parser.add_argument('--epochs', type=int, default=10, help='Number of epochs to train')
-    parser.add_argument('--execution_mode', type=str, choices=['fast_local_mode', 'aws_training'], required=True, help='Execution mode: fast_local_mode or aws_training')
+    parser = get_common_parser()
     args = parser.parse_args()
 
     train(args)
