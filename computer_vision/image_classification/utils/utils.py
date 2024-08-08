@@ -3,9 +3,9 @@ from torchvision import datasets, transforms
 import os
 import matplotlib.pyplot as plt
 import seaborn as sns
-from torch.utils.data import Subset,DataLoader
+from torch.utils.data import Subset, DataLoader
 import numpy as np
-
+import boto3
 
 from torchvision import datasets, transforms
 from torch.utils.data import Dataset, DataLoader, Subset
@@ -119,16 +119,24 @@ def load_data(model_name,subsample=False, subsample_rate=False):
 
     return trainloader, testloader
 
-def save_model(model, filename):
-    """
-    Save the model parameters.
 
-    Args:
-        model (torch.nn.Module): The PyTorch model to save.
-        filename (str): The path where to save the model.
-    """
-    path = F"/content/gdrive/My Drive/{filename}"
-    torch.save(model.state_dict(), path)
+
+def save_model(model, s3_path):
+    # Save the model locally
+    local_path = 'model.pth'
+    torch.save(model.state_dict(), local_path)
+
+    # Parse the S3 path
+    s3_parts = s3_path.replace("s3://", "").split("/")
+    bucket_name = s3_parts[0]
+    s3_key = "/".join(s3_parts[1:])
+
+    # Upload the model to S3
+    s3_client = boto3.client('s3')
+    s3_client.upload_file(local_path, bucket_name, s3_key)
+
+    # Remove the local model file
+    os.remove(local_path)
 
 def load_model(filename, model_class):
     """
