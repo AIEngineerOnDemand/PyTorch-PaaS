@@ -66,11 +66,11 @@ estimator = PyTorch(
     use_spot_instances=True,  # Enable Spot Instances
     max_wait=3600,  # Maximum wait time for Spot Instances (in seconds)
     max_run=3600,  # Maximum runtime for the training job
-    hyperparameters={
-        'model_name': 'MobileNet',
-        'epochs': 10,
-        'execution_mode': args.execution_mode,
-        'bucket_name': bucket_name if args.execution_mode == 'aws_training' else ''
+    hyperparameters = {
+    'model_name': args.model_name,
+    'epochs': args.epochs,
+    'execution_mode': args.execution_mode,
+    'bucket_name': args.bucket_name if args.execution_mode == 'aws_training' else ''
     },
     output_path=f's3://{bucket_name}/output' if args.execution_mode == 'aws_training' else None
 )
