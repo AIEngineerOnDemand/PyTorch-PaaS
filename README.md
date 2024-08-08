@@ -133,3 +133,25 @@ estimator.fit(f'file://{tmpdirname}')
 ```
 
 This way, you can ensure that the same SageMaker role is used consistently across all folders in your repository.
+
+## AWS Cost Management
+
+Managing costs effectively is crucial when using AWS services. Here are some strategies and tools we use to optimize costs:
+
+### Free Tier Exploitation
+
+We take advantage of AWS's free tier offerings to minimize costs during the initial stages of development and testing. This includes using free tier eligible services and resources wherever possible.
+
+### Spot Instances
+
+To further reduce costs, we use Spot Instances for our training jobs. Spot Instances allow us to use spare AWS compute capacity at a reduced cost. Here are the configurations we use:
+
+```python
+use_spot_instances=True,  # Enable Spot Instances
+max_wait=3600,  # Maximum wait time for Spot Instances (in seconds)
+max_run=3600,  # Maximum runtime for the training job
+```
+### Cost Monitoring with [get_aws_cost.py](get_aws_cost.py)
+We use a custom script, [get_aws_cost.py](get_aws_cost.py), to monitor our AWS costs immediately after running a job. This script uses the AWS Cost Explorer API to fetch cost information.
+
+This script helps us keep track of our spending in real-time, allowing us to make informed decisions about resource usage and cost optimization.
