@@ -1,12 +1,12 @@
 import boto3
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta
 
 # Initialize a session using Amazon Cost Explorer
 client = boto3.client('ce')
 
 # Define the time period for the cost report
-end = datetime.now(datetime.timezone.utc)
-start = end - timedelta(days=1)
+start = datetime.now(timezone.utc)
+end = start + timedelta(days=1)
 
 # Format the dates as required by AWS Cost Explorer
 start_date = start.strftime('%Y-%m-%d')
