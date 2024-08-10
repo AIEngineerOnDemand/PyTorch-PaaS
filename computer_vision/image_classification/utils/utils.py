@@ -3,14 +3,11 @@ from torchvision import datasets, transforms
 import os
 import matplotlib.pyplot as plt
 import seaborn as sns
-from torch.utils.data import Subset, DataLoader
+from torch.utils.data import Subset, DataLoader,Dataset 
 import numpy as np
 import boto3
+import logging
 
-from torchvision import datasets, transforms
-from torch.utils.data import Dataset, DataLoader, Subset
-import numpy as np
-import torch
 
 class DummyDataset(Dataset):
     def __init__(self, model_name, num_samples=100, num_classes=10):
@@ -120,23 +117,32 @@ def load_data(model_name,subsample=False, subsample_rate=False):
     return trainloader, testloader
 
 
-
 def save_model(model, s3_path):
     # Save the model locally
     local_path = 'model.pth'
     torch.save(model.state_dict(), local_path)
+    logging.info(f"Model saved locally at {local_path}")
 
     # Parse the S3 path
     s3_parts = s3_path.replace("s3://", "").split("/")
     bucket_name = s3_parts[0]
     s3_key = "/".join(s3_parts[1:])
+    logging.info(f"Parsed S3 path: bucket_name={bucket_name}, s3_key={s3_key}")
 
     # Upload the model to S3
     s3_client = boto3.client('s3')
-    s3_client.upload_file(local_path, bucket_name, s3_key)
+    try:
+        s3_client.upload_file(local_path, bucket_name, s3_key)
+        logging.info(f"Model uploaded to S3 at s3://{bucket_name}/{s3_key}")
+    except Exception as e:
+        logging.error(f"Failed to upload model to S3: {e}")
 
     # Remove the local model file
-    os.remove(local_path)
+    try:
+        os.remove(local_path)
+        logging.info(f"Local model file {local_path} removed")
+    except Exception as e:
+        logging.error(f"Failed to remove local model file: {e}")
 
 def load_model(filename, model_class):
     """
