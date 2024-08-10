@@ -62,7 +62,7 @@ estimator = PyTorch(
     py_version='py310',
     script_mode=True,
     instance_count=1,
-    instance_type='local' if args.execution_mode == 'fast_local_mode' else  'ml.m5.xlarge',
+    instance_type='local' if args.execution_mode == 'fast_local_mode' else  'ml.t2.medium',
     use_spot_instances=False,  # Enable Spot Instances
    # max_wait=3600,  # Maximum wait time for Spot Instances (in seconds)
     max_run=3600,  # Maximum runtime for the training job
